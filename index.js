@@ -2,12 +2,14 @@
   const response = await fetch('https://catalegdades.caib.cat/api/views/t84h-sihg/rows.json?accessType=DOWNLOAD');
   const associations = await response.json();
 
-  const associationsArray = Object.values(associations)
+  // console.log(associations.data[0])
 
-  const filteredData = associationsArray.map(association => {
-    id = associations.meta.view.id,
-    name = associations.meta.view.name
-  })
+  let filterAssociations = associations.data.map(({ sid, id, date }) =>
+    ({ 
+      sid: associations.data.sid,
+      id: associations.data[11]
+    })
+  )
 
-  console.log(filteredData)
+  console.log(filterAssociations)
 })();
