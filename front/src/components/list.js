@@ -39,32 +39,44 @@ class List extends HTMLElement {
         }
 
         .list-item {
+          background-color: #eee;
+          color: #444;
+          cursor: pointer;
+          padding: 18px;
+          width: 100%;
           text-align: left;
-          width: 95%;
+          outline: none;
+          font-size: 15px;
+          transition: 0.4s;
           gap: 10px;
           margin: 5px;
-          padding: 15px;
           border-radius: 10px;
           background-color: hsla(49, 1%, 89%, 1);
           font-weight: 600;
           transition: 0.3s;
         }
 
-        .list-item:hover {
-          cursor: pointer;
+        .active, .list-item:hover {
           background-color: hsla(273, 78%, 52%, 1);
           color: white;
         }
 
-        .list-item:active {
-          padding: 0 18px;
-          display: block;
-          background-color: hsla(273, 78%, 52%, 1);
-          overflow: hidden;
+        .list-item:after {
+          color: #777;
+          font-weight: bold;
+          float: right;
+          margin-left: 5px;
         }
 
-        .item-info {
+        .active:after {
+        }
 
+        .panel {
+          padding: 0 18px;
+          background-color: white;
+          max-height: 0;
+          overflow: hidden;
+          transition: 0.2s ease-out;
         }
       </style>
 
@@ -85,7 +97,7 @@ class List extends HTMLElement {
       listSection.appendChild(listItem)
 
       const itemPanel = document.createElement('div')
-      itemPanel.classList.add('list-info')
+      itemPanel.classList.add('panel')
       listItem.appendChild(itemPanel)
 
       const itemDescription = document.createElement('p')
@@ -95,23 +107,18 @@ class List extends HTMLElement {
     })
 
     listSection.addEventListener('click', event => {
-      const listItem = event.target.closest('.list-item')
-      listItem.classList.toggle('active')
+      console.log('prueba')
+      if (event.target.closest('.list-item')) {
+        const filter = event.target.closest('.list-item')
+        const panel = event.target.closest('panel')
+
+        if (filter.classList === 'active') {
+          console.log('prueba activo')
+        } else {
+          console.log('no activo')
+        }
+      }
     })
-
-    // listSection.addEventListener('click', event => {
-    //   console.log('prueba')
-    //   if (event.target.closest('.list-item')) {
-    //     const filter = event.target.closest('.list-item')
-    //     const panel = event.target.closest('panel')
-
-    //     if (filter.classList === 'active') {
-    //       panel.style.display = 'none'
-    //     } else {
-    //       panel.style.display = 'block'
-    //     }
-    //   }
-    // })
   }
 }
 
