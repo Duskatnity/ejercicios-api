@@ -26,7 +26,7 @@ class Searcher extends HTMLElement {
         margin: 1rem;
       }
 
-      .search-box input {
+      .search-text {
         width: 90%;
         height: 5rem;
       }
@@ -35,7 +35,7 @@ class Searcher extends HTMLElement {
     <div class="search tool">
       <div class="title">¿Qué asociaciones estás buscando?</div>
       <div class="search-box">
-        <input type="text">
+        <textarea class="search-text"></textarea>
       </div>
     </div>
       `

@@ -25,7 +25,7 @@ class DividerRight extends HTMLElement {
     /* Control the left side */
     .right {
       right: 0;
-      background-color: white;
+      background-color: lightblue;
     }
     </style>
 
