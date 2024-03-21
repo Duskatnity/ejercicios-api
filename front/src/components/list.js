@@ -78,6 +78,10 @@ class List extends HTMLElement {
           overflow: hidden;
           transition: 0.2s ease-out;
         }
+
+        .item-description {
+          color: black;
+        }
       </style>
 
       <div class="list-section">
@@ -104,18 +108,29 @@ class List extends HTMLElement {
       itemDescription.classList.add('item-description')
       itemDescription.textContent = association.type
       itemPanel.appendChild(itemDescription)
+
+      const itemLocation = document.createElement('p')
+      itemDescription.classList.add('item-description')
+      itemDescription.textContent = association.location
+      itemPanel.appendChild(itemLocation)
     })
 
     listSection.addEventListener('click', event => {
-      console.log('prueba')
       if (event.target.closest('.list-item')) {
         const filter = event.target.closest('.list-item')
-        const panel = event.target.closest('panel')
+        const panel = filter.querySelector('.panel')
 
-        if (filter.classList === 'active') {
-          console.log('prueba activo')
+        const currentActiveFilter = document.querySelector('.list-item.active')
+        if (currentActiveFilter) {
+          currentActiveFilter.classList.remove('active')
+        }
+
+        filter.classList.toggle('active')
+
+        if (panel.style.maxHeight) {
+          panel.style.maxHeight = null
         } else {
-          console.log('no activo')
+          panel.style.maxHeight = panel.scrollHeight + 'px'
         }
       }
     })
