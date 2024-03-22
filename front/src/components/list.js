@@ -1,3 +1,5 @@
+import { store } from '../redux/store.js'
+
 class List extends HTMLElement {
   constructor () {
     super()
@@ -6,6 +8,10 @@ class List extends HTMLElement {
   }
 
   async connectedCallback () {
+    this.unsubscribe = store.subscribe(() => {
+      const currentState = store.getState()
+      console.log(currentState.map.pinElement.title)
+    })
     await this.loadData()
     await this.render()
   }
@@ -53,7 +59,7 @@ class List extends HTMLElement {
           border-radius: 10px;
           background-color: hsla(49, 1%, 89%, 1);
           font-weight: 600;
-          transition: 0.3s;
+          transition: 0.2s ease-out;
         }
 
         .active, .list-item:hover {
@@ -69,6 +75,11 @@ class List extends HTMLElement {
         }
 
         .active:after {
+          content: "X";
+          color: #777;
+          font-weight: bold;
+          float: right;
+          margin-left: 5px;
         }
 
         .panel {
@@ -76,7 +87,10 @@ class List extends HTMLElement {
           background-color: white;
           max-height: 0;
           overflow: hidden;
-          transition: 0.2s ease-out;
+        }
+
+        .active .panel{
+          max-height: max-content;
         }
 
         .item-description {
@@ -110,28 +124,22 @@ class List extends HTMLElement {
       itemPanel.appendChild(itemDescription)
 
       const itemLocation = document.createElement('p')
-      itemDescription.classList.add('item-description')
-      itemDescription.textContent = association.location
+      itemLocation.classList.add('item-description')
+      itemLocation.textContent = association.location
       itemPanel.appendChild(itemLocation)
     })
 
     listSection.addEventListener('click', event => {
       if (event.target.closest('.list-item')) {
+        this.shadow.querySelector('.list-item.active')?.classList.remove('active')
         const filter = event.target.closest('.list-item')
-        const panel = filter.querySelector('.panel')
+        filter.classList.add('active')
 
-        const currentActiveFilter = document.querySelector('.list-item.active')
-        if (currentActiveFilter) {
-          currentActiveFilter.classList.remove('active')
-        }
-
-        filter.classList.toggle('active')
-
-        if (panel.style.maxHeight) {
-          panel.style.maxHeight = null
-        } else {
-          panel.style.maxHeight = panel.scrollHeight + 'px'
-        }
+        document.dispatchEvent(new CustomEvent('filter-map', {
+          detail: {
+            pin: filter.dataset.name
+          }
+        }))
       }
     })
   }

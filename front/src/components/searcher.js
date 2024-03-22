@@ -20,6 +20,7 @@ class Searcher extends HTMLElement {
         margin: 1rem;
         font-weight: 600;
         font-size: 2rem;
+        font-family: 'Poppins', sans-serif;
       }
 
       .search-box {
