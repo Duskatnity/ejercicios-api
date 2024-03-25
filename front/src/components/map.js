@@ -15,21 +15,37 @@ class Map extends HTMLElement {
   }
 
   async connectedCallback () {
+    this.unsubscribe = store.subscribe(() => {
+      const currentState = store.getState()
+      this.updateListBasedOnPin(currentState.map.pinElement)
+    })
+    document.addEventListener('location-selected', event => {
+      const { latitude, longitude } = event.detail
+      this.showLocation({ latitude, longitude })
+    })
+    document.addEventListener('reset-map', () => {
+      this.resetMap()
+    })
     await this.loadData()
     await this.render()
+  }
+
+  updateListBasedOnPin (pinElement) {
+    this.showLocation(pinElement)
+    const listItems = this.shadow.querySelectorAll('.list-item')
+    listItems.forEach(item => {
+      if (item.dataset.latitude === String(pinElement.latitude) && item.dataset.longitude === String(pinElement.longitude)) {
+        item.classList.add('active')
+        item.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      } else {
+        this.resetMap()
+      }
+    })
   }
 
   async loadData () {
     const response = await fetch('/src/data/geocodedData.json')
     this.data = await response.json()
-  }
-
-  handleFilterMap (event) {
-    const pinsRelated = this.shadow.querySelectorAll('pinElement')
-
-    pinsRelated.forEach(pinRelated => {
-
-    })
   }
 
   async render (associations = this.data) {
@@ -114,20 +130,18 @@ class Map extends HTMLElement {
     const { PinElement } = await this.google.maps.importLibrary('marker')
     const position = { lat: parseFloat(location.latitude), lng: parseFloat(location.longitude) }
     this.map.setCenter(position)
-    this.map.setZoom(15)
+    this.map.setZoom(18)
 
     const pinViewActive = new PinElement({
-      background: 'hsl(4deg 81% 42%)',
-      borderColor: 'hsl(4deg 81% 42%)',
-      glyphColor: 'hsl(0deg 0% 100%)'
+      background: 'hsla(12, 100%, 50%, 1)',
+      borderColor: 'hsla(0, 0%, 0%, 1)',
+      glyphColor: 'hsla(360, 100%, 100%, 1)'
     })
 
     this.markers.forEach(marker => {
       if (marker.position.lat === position.lat && marker.position.lng === position.lng) {
         marker.setMap(this.map)
         marker.content = pinViewActive.element
-      } else {
-        marker.setMap(null)
       }
     })
   }
@@ -139,9 +153,9 @@ class Map extends HTMLElement {
     this.map.setZoom(10)
     this.markers.forEach(marker => {
       const pinView = new PinElement({
-        background: 'hsl(280deg 56% 47%)',
-        borderColor: 'hsl(0deg 0% 0%)',
-        glyphColor: 'hsl(0deg 0% 0%)'
+        background: 'hsla(12, 100%, 50%, 1)',
+        borderColor: 'hsla(0, 0%, 0%, 1)',
+        glyphColor: 'hsla(360, 100%, 100%, 1)'
       })
 
       marker.setMap(this.map)

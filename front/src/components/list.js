@@ -10,14 +10,26 @@ class List extends HTMLElement {
   async connectedCallback () {
     this.unsubscribe = store.subscribe(() => {
       const currentState = store.getState()
-      console.log(currentState.map.pinElement.title)
+      this.updateListBasedOnPin(currentState.map.pinElement)
     })
     await this.loadData()
     await this.render()
   }
 
+  updateListBasedOnPin (pinElement) {
+    const listItems = this.shadow.querySelectorAll('.list-item')
+    listItems.forEach(item => {
+      if (item.dataset.latitude === String(pinElement.latitude) && item.dataset.longitude === String(pinElement.longitude)) {
+        item.classList.add('active')
+        item.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
+      } else {
+        item.classList.remove('active')
+      }
+    })
+  }
+
   async loadData () {
-    const response = await fetch('/src/data/associations.json')
+    const response = await fetch('/src/data/geocodedData.json')
     this.data = await response.json()
   }
 
@@ -30,7 +42,7 @@ class List extends HTMLElement {
           flex: 1;
           padding: 20px;
           box-sizing: border-box;
-          height: 75%;
+          height: 70%;
           overflow-y: auto;
           overflow-x: hidden;
         }
@@ -64,22 +76,7 @@ class List extends HTMLElement {
 
         .active, .list-item:hover {
           background-color: hsla(273, 78%, 52%, 1);
-          color: white;
-        }
-
-        .list-item:after {
-          color: #777;
-          font-weight: bold;
-          float: right;
-          margin-left: 5px;
-        }
-
-        .active:after {
-          content: "X";
-          color: #777;
-          font-weight: bold;
-          float: right;
-          margin-left: 5px;
+          color: #ffffff;
         }
 
         .panel {
@@ -87,6 +84,20 @@ class List extends HTMLElement {
           background-color: white;
           max-height: 0;
           overflow: hidden;
+        }
+
+        .close-button {
+          background-color: red;
+          border-radius: 5px;
+          border-radius: 0.5rem;
+          padding: 0.5rem 1rem;
+          font-size: 1rem;
+          font-family: 'Poppins', sans-serif;
+          margin: 5px;
+        }
+
+        .close-button:hover {
+          cursor: pointer;
         }
 
         .active .panel{
@@ -112,6 +123,8 @@ class List extends HTMLElement {
       const listItem = document.createElement('button')
       listItem.classList.add('list-item')
       listItem.textContent = association.name
+      listItem.dataset.latitude = association.latitude
+      listItem.dataset.longitude = association.longitude
       listSection.appendChild(listItem)
 
       const itemPanel = document.createElement('div')
@@ -120,20 +133,40 @@ class List extends HTMLElement {
 
       const itemDescription = document.createElement('p')
       itemDescription.classList.add('item-description')
-      itemDescription.textContent = association.type
+      itemDescription.textContent = association.goals
       itemPanel.appendChild(itemDescription)
 
       const itemLocation = document.createElement('p')
       itemLocation.classList.add('item-description')
-      itemLocation.textContent = association.location
+      itemLocation.textContent = association.address
       itemPanel.appendChild(itemLocation)
+
+      const closeButton = document.createElement('button')
+      closeButton.classList.add('close-button')
+      closeButton.textContent = 'Cerrar'
+      itemPanel.appendChild(closeButton)
     })
 
     listSection.addEventListener('click', event => {
+      const filter = event.target.closest('.list-item')
+      const latitude = filter.dataset.latitude
+      const longitude = filter.dataset.longitude
+
+      const activeListItem = this.shadow.querySelector('.list-item.active')
+      if (event.target.classList.contains('close-button')) {
+        activeListItem.classList.remove('active')
+        document.dispatchEvent(new CustomEvent('reset-map'))
+        return
+      }
+
       if (event.target.closest('.list-item')) {
         this.shadow.querySelector('.list-item.active')?.classList.remove('active')
         const filter = event.target.closest('.list-item')
         filter.classList.add('active')
+
+        document.dispatchEvent(new CustomEvent('location-selected', {
+          detail: { latitude, longitude }
+        }))
 
         document.dispatchEvent(new CustomEvent('filter-map', {
           detail: {

@@ -4,6 +4,7 @@ export const mapSlice = createSlice({
   name: 'map',
   initialState: {
     pinElement: {
+      selectedPinId: null,
       title: null,
       longitude: null,
       latitude: null
@@ -11,6 +12,7 @@ export const mapSlice = createSlice({
   },
   reducers: {
     setPinElement: (state, action) => {
+      state.selectedPinId = action.payload.pinId
       state.pinElement = action.payload
     }
   }
